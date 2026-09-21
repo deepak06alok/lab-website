@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SynThesIs Lab — IIT Delhi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+  /* ═══════════════════════════════════
+     TOKENS
+  ═══════════════════════════════════ */
+  :root {
+    --ink:       #0f1117;
+    --ink-soft:  #2e3240;
+    --muted:     #6b7280;
+    --off-white: #f8f5f0;
+    --parchment: #ede8e0;
+    --rule:      #ddd8d0;
+    --gold:      #c9a84c;
+    --blue:      #3a5f8a;
+    --serif:     'EB Garamond', Georgia, serif;
+    --sans:      'Inter', system-ui, sans-serif;
+    --max:       860px;
+    --pad:       clamp(18px, 5vw, 52px);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  /* Body set up as a flex container to push the footer to the bottom */
+  body {
+    font-family: var(--sans);
+    font-size: 14.5px;
+    line-height: 1.72;
+    color: var(--ink);
+    background: var(--off-white);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul { list-style: none; padding: 0; }
+
+  /* ═══════════════════════════════════
+     TYPOGRAPHY UTILITIES
+  ═══════════════════════════════════ */
+  .roman-i {
+    font-family: var(--serif);
+    font-style: normal;
+  }
+
+  /* ═══════════════════════════════════
+     SPECTRUM BAR
+  ═══════════════════════════════════ */
+  .spectrum-bar {
+    height: 3px;
+    background: linear-gradient(90deg,
+      #7b4fcf 0%, #4a6fa5 16%, #3a9e8f 33%,
+      #c9a84c 50%, #c96a3a 66%, #b84c6e 83%, #7b4fcf 100%);
+    background-size: 200% 100%;
+    width: 100%;
+    flex-shrink: 0;
+    animation: spectrumFlow 15s linear infinite;
+  }
+
+  @keyframes spectrumFlow {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+  }
+
+  /* ═══════════════════════════════════
+     PINNED HEADER WRAPPER
+  ═══════════════════════════════════ */
+  #header-wrapper {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000; /* Ensures it stays above all scrolling content */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    background: var(--ink); /* Opaque background prevents seeing text behind it */
+  }
+
+  /* ═══════════════════════════════════
+     HERO & NAVIGATION
+  ═══════════════════════════════════ */
+  #hero {
+    padding: 36px var(--pad) 48px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  #hero-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none; /* Allows clicking links through the canvas */
+  }
+
+  /* --- VINTAGE VEIL EFFECT (Smooth diagonal drift) --- */
+  #hero-vintage-veil {
+    position: absolute;
+    top: 0; left: 0;
+    width: 50vw; 
+    height: 100%;
+    background: linear-gradient(90deg, #7b4fcf 0%, #4a6fa5 16%, #3a9e8f 33%, #c9a84c 50%, #c96a3a 66%, #b84c6e 83%, #7b4fcf 100%);
+    background-size: 200% 100%;
+    animation: spectrumFlow 20s linear infinite, vintageDrift 10s linear infinite;
+    /* Composite Mask: Fades out radially AND creates the systematic dots */
+    -webkit-mask-image: 
+      radial-gradient(circle at top left, black 0%, transparent 60%), 
+      radial-gradient(circle, black 15%, transparent 40%);
+    -webkit-mask-size: 100% 100%, 16px 16px;
+    -webkit-mask-repeat: no-repeat, repeat;
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+    opacity: 0.25; /* Subtle vintage grain */
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Smooth continuous drift using multiples of the 16px mask size */
+  @keyframes vintageDrift {
+    0% { -webkit-mask-position: 0 0, 0px 0px; }
+    100% { -webkit-mask-position: 0 0, 32px 160px; } 
+  }
+
+  #hero .hero-inner {
+    max-width: calc(var(--max) + 2*var(--pad));
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-text {
+    flex: 1;
+  }
+  .hero-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .hero-nav a {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #8a90a0;
+    text-transform: uppercase;
+    transition: color .2s ease;
+    border-right: 2px solid transparent;
+    padding-right: 14px;
+    text-decoration: none;
+  }
+  .hero-nav a:hover,
+  .hero-nav a.active {
+    color: var(--off-white);
+    border-right-color: var(--gold);
+  }
+  .hero-wordmark {
+    font-family: var(--serif);
+    font-size: clamp(3.2rem, 8vw, 6rem);
+    font-weight: 500;
+    color: var(--off-white);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 14px;
+  }
+  
+  /* Changing Gradient for the "I" */
+  .hero-wordmark .hi { 
+    background: linear-gradient(90deg, #7b4fcf 0%, #4a6fa5 16%, #3a9e8f 33%, #c9a84c 50%, #c96a3a 66%, #b84c6e 83%, #7b4fcf 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    animation: spectrumFlow 15s linear infinite;
+  }
+
+  .hero-expansion {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    color: #6b7280;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+  }
+  .hero-desc {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    color: #b0b8c8;
+    line-height: 1.75;
+    max-width: 62ch;
+    font-style: italic;
+  }
+  .hero-desc strong { color: var(--off-white); font-style: normal; font-weight: 500; }
+
+  /* ═══════════════════════════════════
+     PAGE WRAP
+  ═══════════════════════════════════ */
+  .page-wrap {
+    max-width: calc(var(--max) + 2*var(--pad));
+    margin: 0 auto;
+    padding: 0 var(--pad);
+    flex: 1 0 auto; 
+    width: 100%;
+  }
+
+  /* ═══════════════════════════════════
+     PANELS
+  ═══════════════════════════════════ */
+  .panel { display: none; padding: 52px 0 80px; }
+  .panel.active { display: block; }
+
+  /* section heading */
+  .sec-heading {
+    font-family: var(--serif);
+    font-size: 1.9rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .sec-rule {
+    height: 1px;
+    background: var(--rule);
+    margin-bottom: 28px;
+    margin-top: 8px;
+  }
+  /* gold left-rule sub-heading */
+  .sub-heading {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    padding-left: 12px;
+    border-left: 3px solid var(--gold);
+    margin: 32px 0 12px;
+    line-height: 1.3;
+  }
+  .prose p {
+    font-size: 14.5px;
+    line-height: 1.78;
+    color: var(--ink-soft);
+    margin-bottom: 1em;
+    max-width: 72ch;
+  }
+
+  /* ═══════════════════════════════════
+     HOME — research areas chips
+  ═══════════════════════════════════ */
+  .area-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0 0;
+  }
+  .area-chip {
+    font-size: 0.72rem;
+    font-family: var(--sans);
+    font-weight: 500;
+    border: 1px solid var(--rule);
+    padding: 5px 12px;
+    color: var(--ink-soft);
+    background: #fff;
+    letter-spacing: 0.03em;
+  }
+
+  /* ═══════════════════════════════════
+     TEAM CARDS
+  ═══════════════════════════════════ */
+  .team-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px; 
+    margin-top: 16px;
+  }
+  .team-card {
+    text-align: center;
+    width: 220px;
+    box-sizing: border-box;
+  }
+  .team-card .tc-photo {
+    width: 220px;
+    height: 220px;
+    background: var(--parchment);
+    border: 1px solid var(--rule);
+    margin: 0 auto 16px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .team-card .tc-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .team-card .tc-name {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+    min-height: 24px;
+    letter-spacing: 0.02em;
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* Minimal interactive styling for names (Arrow only) */
+  .team-card .tc-name a {
+    color: var(--ink);
+    text-decoration: none;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.3s ease;
+  }
+  .team-card .tc-name a:hover {
+    color: var(--blue);
+  }
+  .team-card .tc-name a::after {
+    content: "↗";
+    font-family: var(--sans);
+    font-size: 0.85em;
+    color: var(--gold);
+    font-weight: 600;
+    transition: transform 0.3s ease;
+  }
+  .team-card .tc-name a:hover::after {
+    transform: translate(2px, -2px); /* Arrow shoots up-right */
+  }
+
+  .team-card .tc-role {
+    font-size: 0.72rem;
+    font-family: var(--sans);
+    color: var(--gold);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 6px;
+    margin-bottom: 6px;
+  }
+
+  /* ═══════════════════════════════════
+     NEWS
+  ═══════════════════════════════════ */
+  .news-list { list-style: none; padding: 0; }
+  .news-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .news-item:last-child { border-bottom: none; }
+  .news-dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    margin-top: 6px;
+  }
+  .news-date {
+    font-family: var(--sans);
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 3px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+  .news-text {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.65;
+  }
+  .news-text em { font-style: italic; }
+
+  /* ═══════════════════════════════════
+     FOOTER
+  ═══════════════════════════════════ */
+  #site-footer {
+    background: var(--ink);
+    flex-shrink: 0;
+    margin-top: auto; 
+    width: 100%;
+  }
+  .footer-inner {
+    max-width: calc(var(--max) + 2*var(--pad));
+    margin: 0 auto;
+    padding: 28px var(--pad);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+  }
+  .footer-brand {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-style: italic;
+    color: #3a3f50;
+  }
+  .footer-text {
+    font-size: 0.68rem;
+    font-family: var(--sans);
+    color: #4a5060;
+    text-align: right;
+    line-height: 2;
+  }
+  .footer-text a { color: #5a7890; }
+
+  /* ═══════════════════════════════════
+     RESPONSIVE
+  ═══════════════════════════════════ */
+  @media (max-width: 768px) {
+    #hero .hero-inner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 32px;
+    }
+    .hero-nav {
+      text-align: left;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .hero-nav a {
+      border-right: none;
+      padding-right: 0;
+      border-bottom: 2px solid transparent;
+      padding-bottom: 4px;
+    }
+    .hero-nav a:hover,
+    .hero-nav a.active {
+      border-right-color: transparent;
+      border-bottom-color: var(--gold);
+    }
+    .hero-wordmark { font-size: 3rem; }
+    .team-grid { flex-direction: column; align-items: center; }
+    .footer-inner { flex-direction: column; align-items: flex-start; }
+    .footer-text { text-align: left; }
+  }
+  </style>
+</head>
+<body>
+
+<!-- ══ PINNED HEADER WRAPPER ══ -->
+<div id="header-wrapper">
+  <div class="spectrum-bar"></div>
+  
+  <header id="hero">
+    <!-- Interactive Generative Background & 3D Wave Veil -->
+    <canvas id="hero-canvas"></canvas>
+    
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="hero-wordmark">SynThes<span class="hi roman-i">I</span>s</div>
+        <div class="hero-expansion">Syntactic Theories and Interfaces Lab</div>
+        <p class="hero-desc">
+          A research lab in <strong>generative linguistics</strong> at the
+          Department of Humanities and Social Sciences, <strong>IIT Delhi</strong> —
+          working on the syntax of natural language and its interfaces with
+          semantics, morphology, and discourse.
+        </p>
+      </div>
+      
+      <!-- ══ NAVIGATION MOVED INTO HERO ══ -->
+      <nav class="hero-nav">
+        <a href="#" data-page="home" class="active">Home</a>
+        <a href="#" data-page="team">Investigators</a>
+        <a href="#" data-page="news">News</a>
+      </nav>
+    </div>
+  </header>
+  <div class="spectrum-bar"></div>
+</div>
+
+<!-- ══ PAGE WRAP ══ -->
+<div class="page-wrap">
+
+  <!-- ════════ HOME ════════ -->
+  <div id="panel-home" class="panel active">
+
+    <h2 class="sec-heading">About</h2>
+    <div class="sec-rule"></div>
+    <div class="prose">
+      <p><strong>SynThes<span class="roman-i">I</span>s </strong> (Syntactic Theories and Interfaces) is a research lab led by <a href="https://hss.iitd.ac.in/faculty/deepak-alok" target="_blank">Deepak Alok</a> at IIT Delhi. We work within the generative tradition, investigating how natural languages encode grammatical information about persons, discourse, and structure.</p>
+      <p>Our work investigates the morphology, syntax and pragmatics of natural language. The questions we raise are how clausal structure encodes the speaker and the addressee (honorification, allocutivity), how nominal domains vary across article-less languages (bare nominals, classifiers, number morphology), and how ellipsis and clausal structure relate, among others.</p>
+    </div>
+
+    <div class="sub-heading">Research Topics</div>
+    <div class="area-list">
+      <div class="area-chip">Honorification &amp; Allocutivity</div>
+      <div class="area-chip">Speaker &amp; Addressee in Grammar</div>
+      <div class="area-chip">Discourse Particles</div>
+      <div class="area-chip">Split Constructions</div>
+      <div class="area-chip">Bare Nominals &amp; Classifiers</div>
+      <div class="area-chip">Number Morphology</div>
+      <div class="area-chip">Ellipsis</div>
+      <div class="area-chip">Negation</div>
+      <div class="area-chip">Argument Structure</div>
+      <div class="area-chip">South Asian Languages</div>
+    </div>
+
+    <div class="sub-heading">Languages We Work On</div>
+    <div class="area-list">
+      <div class="area-chip">Magahi</div>
+      <div class="area-chip">Bangla</div>
+      <div class="area-chip">Assamese</div>
+      <div class="area-chip">Karbi</div>
+      <div class="area-chip">Tangkhul</div>
+      <div class="area-chip">Hindi-Urdu</div>
+    </div>
+
+    <div class="sub-heading">Recent Highlights</div>
+    <ul class="news-list">
+      <li class="news-item">
+        <div class="news-dot"></div>
+        <div>
+          <div class="news-date">Dec 2025</div>
+          <div class="news-text">SynThes<span class="roman-i">I</span>s hosted <em>Discourse Particles in South Asian Languages (DiPSAL)</em> at IIT Delhi, 22–23 December 2025.</div>
+        </div>
+      </li>
+    </ul>
+  </div><!-- /home -->
+
+  <!-- ════════ INVESTIGATORS ════════ -->
+  <div id="panel-team" class="panel">
+
+    <h2 class="sec-heading">Investigators</h2>
+    <div class="sec-rule"></div>
+
+    <!-- PI — centred alone on top -->
+    <div style="display:flex;justify-content:center;margin-bottom:48px;">
+      <div class="team-card" style="width:220px;">
+        <div class="tc-photo">
+          <img src="deepak.jpg" alt="Deepak Alok">
+        </div>
+        <div class="tc-name"><a href="https://www.deepakalok.in" target="_blank">Deepak Alok</a></div>
+        <div class="tc-role">Principal Investigator</div>
+      </div>
+    </div>
+
+    <!-- Rest of the investigators grouped and center aligned (Alphabetical order) -->
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="tc-photo">
+          <img src="ishita.jpg" alt="Ishita Agrawal">
+        </div>
+        <div class="tc-name"><a href="https://www.linkedin.com/in/ishita-agarwal-017125174?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank">Ishita Agrawal</a></div>
+      </div>
+      <div class="team-card">
+        <div class="tc-photo">
+          <img src="joynal.jpg" alt="Joynal Ali">
+        </div>
+        <div class="tc-name"><a href="https://www.joynal.in" target="_blank">Joynal Ali</a></div>
+      </div>
+      <div class="team-card">
+        <div class="tc-photo">
+          <img src="abul.jpg" alt="MD Abul Afzal Mubashshir">
+        </div>
+        <div class="tc-name"><a href="https://www.linkedin.com/in/md-abul-afzal-mubashshir-b39394248" target="_blank">MD Abul Afzal Mubashshir</a></div>
+      </div>
+      <div class="team-card">
+        <div class="tc-photo">
+          <img src="sharon.jpg" alt="Sharon Valui">
+        </div>
+        <div class="tc-name"><a href="#" target="_blank">Sharon Valui</a></div>
+      </div>
+      <div class="team-card">
+        <div class="tc-photo">
+          <img src="siddharth.jpg" alt="Siddharth Misra">
+        </div>
+        <div class="tc-name"><a href="#" target="_blank">Siddharth Misra</a></div>
+      </div>
+      <div class="team-card">
+        <div class="tc-photo">
+          <img src="sudipta.jpg" alt="Sudipta Saha">
+        </div>
+        <div class="tc-name"><a href="https://sites.google.com/view/sudiptasaha2/home?pli=1&authuser=0" target="_blank">Sudipta Saha</a></div>
+      </div>
+      <div class="team-card">
+        <div class="tc-photo">
+          <img src="vansh.jpg" alt="Vansh">
+        </div>
+        <div class="tc-name"><a href="https://www.linkedin.com/in/vansh-s-15bb0242a?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank">Vansh</a></div>
+      </div>
+    </div>
+
+    <div class="sub-heading" style="margin-top:40px;">Former Members</div>
+    <div style="display:flex;justify-content:center;">
+      <div class="team-card" style="width:220px;">
+        <div class="tc-photo">
+          <img src="ojaswee.jpg" alt="Ojaswee Bhalla">
+        </div>
+        <div class="tc-name"><a href="https://share.google/wZzf0fSzzOPHTDLCt" target="_blank">Ojaswee Bhalla</a></div>
+      </div>
+    </div>
+
+  </div><!-- /team -->
+
+
+  <!-- ════════ NEWS ════════ -->
+  <div id="panel-news" class="panel">
+
+    <h2 class="sec-heading">News</h2>
+    <div class="sec-rule"></div>
+
+    <ul class="news-list">
+      <li class="news-item">
+        <div class="news-dot"></div>
+        <div>
+          <div class="news-date">2024</div>
+          <div class="news-text">SynThes<span class="roman-i">I</span>s — Syntactic Theories and Interfaces — is established as a research lab by Deepak Alok at the Department of Humanities and Social Sciences, IIT Delhi.</div>
+        </div>
+      </li>
+    </ul>
+
+  </div><!-- /news -->
+
+</div><!-- /page-wrap -->
+
+<!-- ══ FOOTER ══ -->
+<footer id="site-footer">
+  <div class="spectrum-bar"></div>
+  <div class="footer-inner">
+    <div class="footer-brand">SynThes<span class="roman-i">I</span>s </div>
+    <div class="footer-text">
+      Syntactic Theories and Interfaces <br>
+      Department of Humanities &amp; Social Sciences · IIT Delhi<br>
+      <a href="mailto:alokdeepak@iitd.ac.in">alokdeepak@iitd.ac.in</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ══════════════════════════════════════════════
+  // TAB NAVIGATION
+  // ══════════════════════════════════════════════
+  const panels  = document.querySelectorAll('.panel');
+  const navBtns = document.querySelectorAll('[data-page]');
+  let currentTab = 'home'; 
+
+  function show(page) {
+    panels.forEach(p  => p.classList.remove('active'));
+    navBtns.forEach(b => b.classList.remove('active'));
+    const p = document.getElementById('panel-' + page);
+    if (p) p.classList.add('active');
+    navBtns.forEach(b => { if (b.dataset.page === page) b.classList.add('active'); });
+    currentTab = page; 
+    
+    // Smooth scroll offset slightly by header height to ensure visibility under pinned banner
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  navBtns.forEach(b => b.addEventListener('click', e => {
+    e.preventDefault();
+    show(b.dataset.page);
+  }));
+
+  // ══════════════════════════════════════════════
+  // MOUSE-DRIVEN GENERATIVE CANVAS ANIMATIONS
+  // ══════════════════════════════════════════════
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  
+  let targetProgress = 0;
+  let progress = 0;
+  let lastMouseX = 0;
+  let lastMouseY = 0;
+  let veilTime = 0;
+
+  // Track cursor movement anywhere on the page
+  window.addEventListener('mousemove', (e) => {
+    const dx = Math.abs(e.clientX - lastMouseX);
+    const dy = Math.abs(e.clientY - lastMouseY);
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    
+    // Add to target progress based on how far the mouse just moved
+    targetProgress = Math.min(1, targetProgress + dist * 0.002);
+    
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+  });
+
+  // Ensure canvas maps perfectly to header dimensions
+  function resizeCanvas() {
+    canvas.width = canvas.parentElement.offsetWidth;
+    canvas.height = canvas.parentElement.offsetHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas(); // Initial size
+
+  // Render Loop
+  function draw() {
+    // 1. Constantly decay the target progress so it fades out when mouse stops
+    targetProgress = Math.max(0, targetProgress - 0.005);
+    
+    // 2. Smooth the actual drawing progress towards the target
+    progress += (targetProgress - progress) * 0.1;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 1. DYNAMIC 3D VINTAGE VEIL (Always drawn in background)
+    drawVintageVeil(canvas.width, canvas.height);
+
+    // 2. INTERACTIVE GENERATIVE SYNTAX ELEMENTS (Drawn on top)
+    if (progress > 0.01) {
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(201, 168, 76, 0.5)'; 
+      ctx.fillStyle = 'rgba(201, 168, 76, 0.5)';
+      
+      const w = canvas.width;
+      const h = canvas.height;
+      
+      // Choose drawing function based on active tab
+      if (currentTab === 'home') {
+        // 1. Feature Checking (Agree)
+        drawFeatureAgree(w, h, progress);
+      } 
+      else if (currentTab === 'team') {
+        // 2. Interfaces / Nodal Mapping
+        drawInterfaceMapping(w, h, progress);
+      } 
+      else if (currentTab === 'news') {
+        // 4. Phase Spell-Out (Cyclicity)
+        drawPhaseSpellOut(w, h, progress);
+      }
+    }
+    
+    requestAnimationFrame(draw);
+  }
+
+  /* --- Drawing Algorithms --- */
+
+  // 0. THE VINTAGE 3D VEIL
+  function drawVintageVeil(w, h) {
+    veilTime += 0.003; 
+    
+    const cols = 50;
+    const rows = 45;
+    const spacing = 16;
+    
+    // Prism Gradient matching the border colors
+    const grad = ctx.createLinearGradient(0, 0, w * 0.4, h * 0.6);
+    // Cycle the hue continuously through the spectrum
+    grad.addColorStop(0, `hsla(${(veilTime * 40) % 360}, 60%, 55%, 0.4)`);
+    grad.addColorStop(1, `hsla(${((veilTime * 40) + 120) % 360}, 60%, 55%, 0.0)`);
+    
+    ctx.fillStyle = grad;
+
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        
+        // Continuous falling offsets
+        const fallOffset = (veilTime * 15) % spacing;
+        const x = (i * spacing); 
+        const y = (j * spacing) + fallOffset; // Fall down
+        
+        // 3D Wave Distortion
+        const waveZ = Math.sin(i * 0.2 + veilTime * 1.0) * Math.cos(j * 0.2 + veilTime * 0.8) * 20;
+        
+        // Perspective Projection
+        const focalLength = 350;
+        const scale = focalLength / (focalLength + waveZ + 50);
+        
+        const px = x * scale;
+        const py = y * scale;
+        
+        // Radial fade out (Limits strictly to upper left corner)
+        const dist = Math.sqrt(px * px + py * py);
+        const maxDist = Math.min(w * 0.45, h * 0.85); 
+        const alpha = Math.max(0, 1 - (dist / maxDist));
+        
+        if (alpha > 0.01) {
+          ctx.globalAlpha = alpha;
+          const radius = Math.max(0.5, 2.5 * scale);
+          
+          ctx.beginPath();
+          ctx.arc(px, py, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+    ctx.globalAlpha = 1.0; 
+  }
+
+  // 1. HOME: Feature Checking (Agree) Visualizing Probe and Goal matching
+  function drawFeatureAgree(w, h, p) {
+    const pX = w * 0.60;
+    const pY = h * 0.35;
+    const gX = w * 0.85;
+    const gY = h * 0.65;
+
+    ctx.beginPath(); ctx.arc(pX, pY, 4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(gX, gY, 4, 0, Math.PI*2); ctx.fill();
+
+    ctx.font = `italic 16px 'EB Garamond', serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("Probe", pX, pY - 25);
+    ctx.fillText("Goal", gX, gY + 25);
+
+    ctx.font = `14px 'Inter', sans-serif`;
+    if (p > 0.95) {
+      ctx.fillText("[uF] \u2713", pX, pY - 8); 
+    } else {
+      ctx.fillText("[uF]", pX, pY - 8);
+    }
+    ctx.fillText("[iF]", gX, gY + 8);
+
+    if (p > 0) {
+      const cpX = w * 0.70;
+      const cpY = h * 0.60;
+      
+      ctx.beginPath();
+      ctx.moveTo(pX, pY);
+      ctx.setLineDash([4, 4]);
+      
+      for (let t = 0.05; t <= p; t += 0.05) {
+        const tx = Math.pow(1-t, 2)*pX + 2*(1-t)*t*cpX + Math.pow(t, 2)*gX;
+        const ty = Math.pow(1-t, 2)*pY + 2*(1-t)*t*cpY + Math.pow(t, 2)*gY;
+        ctx.lineTo(tx, ty);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+      
+      if (p < 0.95) {
+        const hx = Math.pow(1-p, 2)*pX + 2*(1-p)*p*cpX + Math.pow(p, 2)*gX;
+        const hy = Math.pow(1-p, 2)*pY + 2*(1-p)*p*cpY + Math.pow(p, 2)*gY;
+        ctx.beginPath();
+        ctx.arc(hx, hy, 3 + Math.sin(Date.now() / 100)*2, 0, Math.PI*2); 
+        ctx.fill();
+      }
+    }
+  }
+
+  // 2. INVESTIGATORS: Cross-Modular Mapping / Spell-Out to Interfaces
+  function drawInterfaceMapping(w, h, p) {
+    const cx = w * 0.75;
+    const leftX = cx - 60;
+    const rightX = cx + 60;
+    const yOffsets = [-30, 0, 30]; 
+
+    ctx.beginPath();
+    ctx.setLineDash([4, 4]);
+    ctx.moveTo(cx, h * 0.25);
+    ctx.lineTo(cx, h * 0.75);
+    ctx.stroke();
+    ctx.setLineDash([]); 
+
+    if (p > 0.5) {
+      ctx.font = `italic 14px 'EB Garamond', serif`;
+      ctx.textAlign = "center";
+      ctx.fillText("Syntax", leftX, h * 0.25 - 10);
+      ctx.fillText("LF / PF", rightX, h * 0.25 - 10);
+    }
+
+    if (p > 0.1) {
+      yOffsets.forEach(y => {
+        ctx.beginPath(); ctx.arc(leftX, h * 0.5 + y, 3, 0, Math.PI*2); ctx.fill();
+      });
+    }
+    if (p > 0.3) {
+      yOffsets.forEach(y => {
+        ctx.beginPath(); ctx.arc(rightX, h * 0.5 + y, 3, 0, Math.PI*2); ctx.fill();
+      });
+    }
+
+    const mappings = [ {from: 0, to: 1}, {from: 1, to: 2}, {from: 2, to: 0} ];
+
+    mappings.forEach((map, index) => {
+      const startY = h * 0.5 + yOffsets[map.from];
+      const endY = h * 0.5 + yOffsets[map.to];
+      
+      const drawP = Math.min(Math.max((p - 0.2) * 1.5, 0), 1); 
+      
+      if (drawP > 0) {
+        const cpX = cx;
+        const cpY = (startY + endY) / 2 + (index === 1 ? 30 : -30); 
+
+        ctx.beginPath();
+        let lastX = leftX;
+        let lastY = startY;
+        ctx.moveTo(lastX, lastY);
+        
+        for (let t = 0.05; t <= drawP; t += 0.05) {
+          const tx = Math.pow(1-t, 2)*leftX + 2*(1-t)*t*cpX + Math.pow(t, 2)*rightX;
+          const ty = Math.pow(1-t, 2)*startY + 2*(1-t)*t*cpY + Math.pow(t, 2)*endY;
+          ctx.lineTo(tx, ty);
+        }
+        ctx.stroke();
+      }
+    });
+  }
+
+  // 3. RESEARCH: Feature Inheritance (Chomsky 2008)
+  function drawFeatureInheritance(w, h, p) {
+    const cx = w * 0.75; // Aligned correctly
+    const cy1 = h * 0.3;
+    const cy2 = h * 0.65;
+
+    // Draw backbone
+    ctx.beginPath();
+    ctx.moveTo(cx, cy1);
+    ctx.lineTo(cx, cy2);
+    ctx.stroke();
+
+    // Draw Nodes
+    ctx.beginPath(); ctx.arc(cx, cy1, 4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy2, 4, 0, Math.PI*2); ctx.fill();
+
+    // Labels
+    ctx.font = `italic 18px 'EB Garamond', serif`;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.fillText("C", cx - 15, cy1);
+    ctx.fillText("T", cx - 15, cy2);
+
+    // Custom text drawing for proper orthographical subscript [past]
+    const drawFeaturePacket = (y, opacity) => {
+      const startX = cx + 15;
+      ctx.fillStyle = `rgba(201, 168, 76, ${opacity})`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+
+      ctx.font = `14px 'Inter', sans-serif`;
+      ctx.fillText("{ϕ, T", startX, y);
+      const w1 = ctx.measureText("{ϕ, T").width;
+
+      // Drop the font size and shift baseline slightly for the subscript
+      ctx.font = `10px 'Inter', sans-serif`;
+      ctx.fillText("[past]", startX + w1 + 1, y + 4);
+      const w2 = ctx.measureText("[past]").width;
+
+      ctx.font = `14px 'Inter', sans-serif`;
+      ctx.fillText("}", startX + w1 + 1 + w2 + 1, y);
+    };
+
+    if (p < 0.1) {
+      // Initial state at C
+      drawFeaturePacket(cy1, 1);
+    } else if (p >= 0.1 && p <= 0.9) {
+      // Traveling state
+      const travelP = (p - 0.1) / 0.8;
+      const currentY = cy1 + (cy2 - cy1) * travelP;
+      
+      ctx.fillStyle = `rgba(201, 168, 76, 0.9)`;
+      ctx.beginPath(); ctx.arc(cx, currentY, 3, 0, Math.PI*2); ctx.fill();
+      
+      drawFeaturePacket(currentY, 0.9);
+      
+      // Faint trail
+      ctx.beginPath();
+      ctx.moveTo(cx, cy1);
+      ctx.lineTo(cx, currentY);
+      ctx.strokeStyle = 'rgba(201, 168, 76, 0.8)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    } else {
+      // Final state at T
+      drawFeaturePacket(cy2, 0.9);
+      
+      // Pulse at T
+      const pulse = (p - 0.9) * 10; // 0 to 1
+      ctx.beginPath();
+      ctx.arc(cx, cy2, 4 + pulse * 6, 0, Math.PI*2);
+      ctx.strokeStyle = `rgba(201, 168, 76, ${1 - pulse})`;
+      ctx.stroke();
+    }
+  }
+
+  // 4. NEWS: Phase Spell-Out (Cyclicity) visualizing Domain separation
+  function drawPhaseSpellOut(w, h, p) {
+    const cx = w * 0.75; 
+    const cy = h * 0.35;
+    const outerR = 50;
+    const innerR = 25;
+
+    const destX = cx;
+    const destY = cy + (90 * p);
+
+    ctx.beginPath();
+    ctx.setLineDash([5, 5]);
+    ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    ctx.font = `italic 16px 'EB Garamond', serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("Phase Edge", cx, cy - outerR - 15);
+
+    if (p > 0.1) {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(destX, destY);
+      ctx.strokeStyle = `rgba(201, 168, 76, ${0.2 * p})`;
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(201, 168, 76, 0.4)'; 
+    }
+
+    ctx.beginPath();
+    ctx.arc(destX, destY, innerR, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(201, 168, 76, ${0.4 - 0.2 * p})`;
+    ctx.fill();
+    ctx.stroke();
+    
+    ctx.fillStyle = `rgba(201, 168, 76, 0.8)`;
+    ctx.fillText("Domain", destX, destY);
+    
+    if (p > 0.8) {
+      ctx.font = `italic 13px 'Inter', sans-serif`;
+      ctx.textAlign = "left";
+      ctx.fillText("\u2794 Spell-Out", destX + 35, destY);
+    }
+  }
+
+  requestAnimationFrame(draw);
+</script>
+</body>
+</html>
